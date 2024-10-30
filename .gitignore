@@ -1,0 +1,25 @@
+# Ignore Python compiled files
+*.pyc
+__pycache__/
+
+# Ignore virtual environments
+venv/
+env/
+
+# Ignore database files
+*.db
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore CSV and other data files
+*.csv
+
+# Ignore model files
+*.pkl
+
+# Ignore log files
+*.log
+
+# Ignore static image or media files
+static/PD.jpeg

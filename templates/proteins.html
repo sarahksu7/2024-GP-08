@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Proteins and UPDRS Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* General Body Styling */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #eef2f3 0%, #8e9eab 100%);
+            margin: 0;
+            padding: 20px;
+            color: #333a56;
+        }
+
+        h1, h2 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-top: 20px;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+        }
+
+        /* Flex Container */
+        .flex {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Section (Circular Progress) */
+        section {
+            position: relative;
+            background-color: #fff;
+            border-radius: 50%;
+            padding: 20px;
+            margin: 20px;
+            width: 160px;
+            height: 160px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        section:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .pie {
+            position: relative;
+            border-radius: 50%;
+            box-shadow: inset 0 0 10px 3px #a2caff;
+            background: conic-gradient(#6200EA 0%, #f1f1f1 0%);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pie span {
+            position: absolute;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #000;
+        }
+
+        section h3 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #2d3748;
+            font-weight: 400;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #2d3748;
+            color: white;
+            font-weight: 500;
+        }
+
+        td {
+            color: #2d3748;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .btn-back, .btn-show-more {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-back:hover, .btn-show-more:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            table {
+                width: 100%;
+            }
+
+            .flex {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Patient {{ patient_id }} - Visit {{ visit_id }}</h1>
+
+    <!-- Circle Progress for Each UPDRS Score -->
+    <h2>UPDRS Scores</h2>
+   
+    <div class="flex">
+        <section>
+            <h3>UPDRS 1</h3> <!-- Title for UPDRS 1 -->
+            <div class="pie" id="updrs-1-circle">
+                <span>0%</span>
+            </div>
+        </section>
+        <section>
+            <h3>UPDRS 2</h3> <!-- Title for UPDRS 2 -->
+            <div class="pie" id="updrs-2-circle">
+                <span>0%</span>
+            </div>
+        </section>
+        <section>
+            <h3>UPDRS 3</h3> <!-- Title for UPDRS 3 -->
+            <div class="pie" id="updrs-3-circle">
+                <span>0%</span>
+            </div>
+        </section>
+        <section>
+            <h3>UPDRS 4</h3> <!-- Title for UPDRS 4 -->
+            <div class="pie" id="updrs-4-circle">
+                <span>0%</span>
+            </div>
+        </section>
+    </div>
+    
+    <h2>Protein Data</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Protein</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody id="protein-table-body">
+            {% for protein, value in protein_data|dictsort(reverse=true, by='value') %}
+                {% if loop.index <= 20 %}
+                    <tr>
+                        <td>{{ protein }}</td>
+                        <td>{{ value }}</td>
+                    </tr>
+                {% else %}
+                    <tr class="hidden additional-proteins">
+                        <td>{{ protein }}</td>
+                        <td>{{ value }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Show More Button -->
+    <div class="flex">
+        <button id="show-more-btn" class="btn-show-more">Show More</button>
+    </div>
+
+    <h2>Predicted UPDRS Scores</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>UPDRS Type</th>
+                <th>Predicted Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>UPDRS 1</td>
+                <td>{{ updrs_scores.updrs_1 }}</td>
+            </tr>
+            <tr>
+                <td>UPDRS 2</td>
+                <td>{{ updrs_scores.updrs_2 }}</td>
+            </tr>
+            <tr>
+                <td>UPDRS 3</td>
+                <td>{{ updrs_scores.updrs_3 }}</td>
+            </tr>
+            <tr>
+                <td>UPDRS 4</td>
+                <td>{{ updrs_scores.updrs_4 }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="/doctor-patients" class="btn-back">Back to Patients List</a>
+
+    <script>
+        // Get UPDRS values, make them absolute, and only keep the integer part
+        const updrsScores = {
+            updrs1: Math.floor(Math.abs({{ updrs_scores.updrs_1 }})),
+            updrs2: Math.floor(Math.abs({{ updrs_scores.updrs_2 }})),
+            updrs3: Math.floor(Math.abs({{ updrs_scores.updrs_3 }})),
+            updrs4: Math.floor(Math.abs({{ updrs_scores.updrs_4 }}))
+        };
+        
+        // Function to update circle based on UPDRS value
+        function updateCircle(circleId, value) {
+            const circle = document.getElementById(circleId);
+            const progressValue = (value / 54) * 100;
+            let color;
+
+            if (value <= 13) {
+                color = 'green';
+            } else if (value <= 27) {
+                color = 'yellow';
+            } else if (value <= 40) {
+                color = 'orange';
+            } else {
+                color = 'red';
+            }
+
+            circle.style.background = `conic-gradient(${color} ${progressValue}%, #f1f1f1 0%)`;
+            circle.querySelector('span').textContent = `${value}`;
+        }
+
+        // Update all four UPDRS circles
+        updateCircle('updrs-1-circle', updrsScores.updrs1);
+        updateCircle('updrs-2-circle', updrsScores.updrs2);
+        updateCircle('updrs-3-circle', updrsScores.updrs3);
+        updateCircle('updrs-4-circle', updrsScores.updrs4);
+
+        // Show more proteins logic
+        const showMoreBtn = document.getElementById('show-more-btn');
+        const additionalProteins = document.querySelectorAll('.additional-proteins');
+
+        showMoreBtn.addEventListener('click', () => {
+            additionalProteins.forEach(row => {
+                row.classList.remove('hidden');
+            });
+            showMoreBtn.style.display = 'none'; // Hide the "Show More" button after click
+        });
+    </script>
+
+</body>
+
+</html>

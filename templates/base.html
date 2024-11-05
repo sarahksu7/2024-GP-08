@@ -4,22 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Your App{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <style>
-        /* General Styling for Body */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f7fa;
-            display: flex;
-            overflow-x: hidden;
+        /* Colors */
+        :root {
+            --dark-green: #2f5233;
+            --light-green: #a8d5a2;
+            --beige: #d3cbb0;
         }
 
         /* Sidebar Styling */
         .sidebar {
-            width: 200px;
-            background-color: #333a56;
-            color: white;
+            width: 220px;
             height: 100vh;
             position: fixed;
             top: 0;
@@ -28,77 +24,81 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            border-radius: 0 15px 15px 0;
+            z-index: 1000;
+            box-shadow: 3px 0 5px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(180deg, var(--dark-green), var(--light-green));
+            color: var(--beige);
             transition: transform 0.3s ease;
         }
 
-        /* Sidebar hidden (for mobile) */
+        /* Sidebar Links */
+        .sidebar a {
+            color: var(--beige);
+            padding: 10px 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: start;
+            width: 100%;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-decoration: none;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        /* Profile Image */
+        .sidebar img {
+            width: 60px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            border: 2px solid #f4f7fa;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Sidebar Toggle Button */
+        .sidebar-toggle {
+            background-color: var(--dark-green);
+            color: var(--beige);
+            position: fixed;
+            top: 15px;
+            left: 240px;
+            padding: 8px 12px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1.2em;
+            z-index: 1050;
+            transition: transform 0.3s ease;
+        }
+
+        /* Sidebar hidden */
         .sidebar.closed {
             transform: translateX(-100%);
         }
 
-        /* Sidebar toggle button */
-        .sidebar-toggle {
-            background-color: #333a56;
-            color: white;
-            position: absolute;
-            top: 15px;
-            left: 20px;
-            padding: 10px 15px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-
-        .sidebar-toggle:hover {
-            background-color: #4b5879;
-        }
-
-        .sidebar img {
-            max-width: 80px;
-            border-radius: 50%;
-            margin-bottom: 15px;
-        }
-
-        .sidebar a {
-            font-size: 16px;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            display: block;
-            text-decoration: none;
-            margin: 10px 0;
-            width: 100%;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-
-        .sidebar a:hover {
-            background-color: #4b5879;
-        }
-
-        /* Content Styling */
+        /* Content */
         .content {
-            margin-left: 220px;
+            margin-left: 240px;
             padding: 40px;
-            flex-grow: 1;
             transition: margin-left 0.3s ease;
         }
 
-        /* If sidebar is closed, shift content to the left */
+        /* Shift content when sidebar is closed */
         .content.shifted {
             margin-left: 20px;
         }
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                position: fixed;
-            }
-
             .sidebar-toggle {
-                left: 10px;
+                left: 20px;
             }
 
             .content {
@@ -110,32 +110,31 @@
 <body>
 
     <!-- Sidebar -->
-    <div class="sidebar closed">
+    <div class="sidebar">
         <div class="text-center py-3">
             <img src="/static/PD.jpeg" alt="Logo">
         </div>
-        <a href="/">Profile</a>
-        <a href="/doctor-patients">Patients</a>
-        <a href="/logout">Logout</a>
+        <a href="/"><i class="fas fa-user"></i> Profile</a>
+        <a href="/doctor-patients"><i class="fas fa-users"></i> Patients</a>
+        <a href="/home"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 
     <!-- Sidebar Toggle Button -->
-    <button class="sidebar-toggle">☰</button>
+    <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
 
     <!-- Main Content -->
-    <div class="content shifted">
+    <div class="content">
         {% block content %}{% endblock %}
     </div>
 
     <script>
-        // JavaScript to toggle the sidebar
         const sidebar = document.querySelector('.sidebar');
         const content = document.querySelector('.content');
         const toggleButton = document.querySelector('.sidebar-toggle');
 
         toggleButton.addEventListener('click', () => {
-            sidebar.classList.toggle('closed');
-            content.classList.toggle('shifted');
+            sidebar.classList.toggle('closed'); // Toggle sidebar visibility
+            content.classList.toggle('shifted'); // Adjust content layout
         });
     </script>
 

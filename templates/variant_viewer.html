@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniProt Variant Viewer</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+      /* Colors inspired by the logo */
+:root {
+    --olive-green: #7b8061;
+    --light-olive-green: #b7b38a;
+    --beige: #d3cbb0;
+    --muted-pink: #b07f78;
+    --dark-olive-green: #4a4e3a;
+}
+
+/* General Styling */
+body {
+    font-family: Arial, sans-serif;
+    color: var(--dark-olive-green);
+    background-color: var(--olive-green);
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    text-align: center;
+    color: var(--beige);
+    padding: 20px 0;
+}
+
+/* Form Styling */
+#variantForm {
+    background-color: var(--light-olive-green);
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    margin: 20px auto;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#variantForm label, #variantForm input {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    font-size: 1em;
+}
+
+#variantForm input[type="text"] {
+    padding: 10px;
+    border: 1px solid var(--beige);
+    border-radius: 4px;
+    background-color: var(--beige);
+    color: var(--dark-olive-green);
+}
+
+#variantForm button {
+    padding: 10px;
+    background-color: var(--muted-pink);
+    color: var(--beige);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s;
+}
+
+#variantForm button:hover {
+    background-color: var(--dark-olive-green);
+    color: var(--beige);
+}
+
+/* Container for Filter and Plot */
+.content-container {
+    display: flex;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 20px auto;
+    align-items: flex-start;
+    justify-content: center;
+    flex-wrap: nowrap; /* Avoid wrapping the filter and plot on larger screens */
+}
+
+/* Filter Section */
+#filterOptions {
+    flex-shrink: 0; /* Prevent filter section from shrinking */
+    width: 300px;
+    background-color: var(--beige);
+    padding: 20px;
+    border-radius: 8px;
+    color: var(--dark-olive-green);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+    margin-top: 200px;
+}
+
+#filterOptions h3 {
+    color: var(--muted-pink);
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 1.2em;
+}
+
+.help-icon {
+    background-color: var(--muted-pink);
+    color: var(--beige);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.info-card {
+    position: absolute;
+    top: 40px;
+    left: 10px;
+    background-color: var(--light-olive-green);
+    color: var(--dark-olive-green);
+    border: 1px solid var(--muted-pink);
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    display: none;
+    width: 100%;
+    z-index: 10;
+}
+
+.info-card p {
+    margin: 5px 0;
+    font-size: 0.9em;
+}
+
+#filterOptions label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 5px 0;
+    font-size: 0.95em;
+}
+
+#filterOptions label span {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 10px;
+    border-radius: 50%;
+}
+
+
+
+#plot {
+    width: 100%;
+    height: 600px;
+}
+
+/* Plot Axis Info Icon */
+#plot-container {
+    flex-grow: 1;
+    max-width: 100%;
+    padding: 20px;
+    background-color: var(--beige);
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative; /* Necessary for positioning the icon within this container */
+}
+
+.axis-help-icon {
+    position: absolute; /* Position absolutely within the plot container */
+    top: 10px; /* Adjust vertical position within the plot */
+    right: 10px; /* Adjust horizontal position within the plot */
+    background-color: var(--muted-pink);
+    color: var(--beige);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+
+.axis-info-card {
+    position: absolute;
+    top: 40px;
+    right: 10px;
+    background-color: var(--light-olive-green);
+    color: var(--dark-olive-green);
+    border: 1px solid var(--muted-pink);
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    display: none;
+    width: 250px;
+    z-index: 10;
+}
+
+.axis-info-card p {
+    margin: 5px 0;
+    font-size: 0.85em;
+}
+
+/* Variant Cards */
+#variantCards {
+    max-width: 1000px;
+    margin: 20px auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.variant-card {
+    flex: 1 1 calc(33.33% - 20px);
+    background-color: var(--beige);
+    border: 1px solid var(--light-olive-green);
+    padding: 10px 5px;
+    border-left: 5px solid var(--muted-pink);
+    border-radius: 8px;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+    color: var(--dark-olive-green);
+    box-sizing: border-box;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.variant-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.variant-card-header {
+    font-weight: bold;
+    color: var(--muted-pink);
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.variant-card p {
+    margin: 5px 0;
+    font-size: 0.95em;
+}
+
+/* Centered Search by Variant ID */
+#searchVariant {
+    max-width: 400px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+#searchVariant input {
+    padding: 10px;
+    width: 80%;
+    border-radius: 5px;
+    border: 1px solid var(--dark-olive-green);
+    font-size: 1em;
+    color: var(--dark-olive-green);
+    background-color: var(--beige);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .content-container {
+        flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    }
+    
+    #filterOptions, #plot-container {
+        width: 100%;
+        max-width: 100%;
+    }
+    .variant-card {
+        flex: 1 1 calc(100% - 20px);
+    }
+}
+
+@media (max-width: 480px) {
+    #variantForm, #filterOptions, #plot-container, #searchVariant {
+        padding: 15px;
+    }
+    #variantForm {
+        width: 90%;
+    }
+    .help-icon, .axis-help-icon {
+        width: 20px;
+        height: 20px;
+    }
+    .variant-card-header {
+        font-size: 1em;
+    }
+    .variant-card p {
+        font-size: 0.85em;
+    }
+}
+
+    </style>
+</head>
+<body>
+    
+    <h1>Variant Viewer</h1>
+
+    <div class="content-container">
+        <div id="filterOptions">
+            <h3>Filter Consequence 
+                <span class="help-icon" id="help-icon">?</span>
+            </h3>
+            <div class="info-card" id="info-card">
+                <p><strong>Likely pathogenic or pathogenic:</strong> Variants likely to cause disease.</p>
+                <p><strong>Predicted consequence:</strong> Inferred variants based on mutation type (e.g., missense).</p>
+                <p><strong>Likely benign or benign:</strong> Variants not expected to cause disease.</p>
+                <p><strong>Uncertain significance:</strong> Variants with insufficient information to assess pathogenicity.</p>
+                <p><strong>Unknown:</strong> Variants lacking sufficient data to determine impact.</p>
+            </div>
+            <label><span style="background-color: red;"></span> <input type="checkbox" class="filter" value="likely pathogenic or pathogenic" checked> Likely pathogenic or pathogenic</label>
+            <label><span style="background-color: blue;"></span> <input type="checkbox" class="filter" value="predicted consequence" checked> Predicted consequence</label>
+            <label><span style="background-color: green;"></span> <input type="checkbox" class="filter" value="likely benign or benign" checked> Likely benign or benign</label>
+            <label><span style="background-color: cyan;"></span> <input type="checkbox" class="filter" value="uncertain significance" checked> Uncertain significance</label>
+            <label><span style="background-color: grey;"></span> <input type="checkbox" class="filter" value="unknown" checked> Unknown</label>
+        </div>
+
+        <div id="plot-container">
+            <div id="plot"></div>
+            <span class="axis-help-icon" id="axis-help-icon">?</span>
+            <div class="axis-info-card" id="axis-info-card">
+                <p><strong>X-axis:</strong> Position in the protein sequence, representing the sequence location of the variant.</p>
+                <p><strong>Y-axis:</strong> Amino acid change, showing the altered amino acid position due to the variant.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Centered Search by Variant ID -->
+    <div id="searchVariant">
+        <input type="text" id="variantIdSearch" placeholder="Search by Variant ID">
+    </div>
+
+    <div id="variantCards"></div>
+
+    <script>
+       $(document).ready(function() {
+    const accession = "{{ accession }}";  // Assuming Flask passes accession as a variable
+
+    function fetchAndDisplayVariants(accession) {
+        $.ajax({
+            type: 'POST',
+            url: '/get_variants',
+            data: { accession: accession },
+            success: function(response) {
+                const initialData = response.variant_data;
+
+                function updateView(filteredData) {
+                    // Filter out any variants with invalid change values
+                    const validData = filteredData.filter(d => 
+                        d.position > 0 && response.amino_acids.includes(d.change)
+                    );
+
+                    Plotly.newPlot('plot', [{
+                        x: validData.map(d => d.position),
+                        y: validData.map(d => response.amino_acids.indexOf(d.change)),
+                        mode: 'markers',
+                        marker: { size: 6, color: validData.map(d => d.color) },
+                        text: validData.map(d => `Variant ID: ${d.variant_id || 'N/A'}`),
+                        hovertemplate: "%{text}<extra></extra>"
+                    }], {
+                        xaxis: { title: 'Position in Protein Sequence' },
+                        yaxis: {
+                            title: 'Variant Amino Acid',
+                            tickvals: Array.from(Array(response.amino_acids.length).keys()),
+                            ticktext: response.amino_acids
+                        },
+                        autosize: true,
+                        width: 1000,
+                        height: 600
+                    });
+
+                    $('#variantCards').empty();
+                    validData.forEach(d => {
+                        $('#variantCards').append(`
+                            <div class="variant-card">
+                                <div class="variant-card-header">Variant ID: ${d.variant_id || 'N/A'}</div>
+                                <p><span>Position:</span> ${d.position}</p>
+                                <p><span>Change:</span> ${d.formatted_change}</p>
+                                <p><span>Clinical Significance:</span> ${d.clinical_significance}</p>
+                                <p><span>Provenance:</span> ${d.provenance}</p>
+                                <p><span>Description:</span> ${d.description}</p>
+                            </div>
+                        `);
+                    });
+                }
+
+                updateView(initialData);
+
+                $('.filter').change(function() {
+                    const selectedFilters = $('.filter:checked').map((_, el) => $(el).val()).get();
+                    const filteredData = selectedFilters.length > 0
+                        ? initialData.filter(d => selectedFilters.includes(d.clinical_significance.toLowerCase()))
+                        : initialData;
+
+                    updateView(filteredData);
+                });
+
+                $('#variantIdSearch').on('input', function() {
+                    const searchId = $(this).val().trim().toLowerCase();
+                    const filteredData = initialData.filter(d => d.variant_id.toLowerCase().includes(searchId));
+                    updateView(filteredData);
+                });
+            },
+            error: function() {
+                $('#variantCards').html('<p>Unable to load variants for this accession.</p>');
+            }
+        });
+    }
+
+    fetchAndDisplayVariants(accession);
+
+    // Toggle info cards
+    $('#help-icon').on('click', function(event) {
+        event.stopPropagation();
+        $('#info-card').toggle();
+    });
+
+    $('#axis-help-icon').on('click', function(event) {
+        event.stopPropagation();
+        $('#axis-info-card').toggle();
+    });
+
+    $(document).click(function(event) {
+        if (!$(event.target).closest('#help-icon, #info-card').length) {
+            $('#info-card').hide();
+        }
+        if (!$(event.target).closest('#axis-help-icon, #axis-info-card').length) {
+            $('#axis-info-card').hide();
+        }
+    });
+});
+
+    </script>
+</body>
+</html>

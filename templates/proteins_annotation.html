@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protein Annotation</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        /* Matching CSS style with the variants page */
+        :root {
+            --olive-green: #7b8061;
+            --light-olive-green: #b7b38a;
+            --beige: #d3cbb0;
+            --muted-pink: #b07f78;
+            --dark-olive-green: #4a4e3a;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--olive-green);
+            color: var(--dark-olive-green);
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--beige);
+            padding: 20px 0;
+        }
+
+        .annotation-container {
+            background-color: var(--beige);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: 20px auto;
+            color: var(--dark-olive-green);
+        }
+
+        .annotation-card {
+            background-color: var(--light-olive-green);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .warning-card {
+            background-color: #fdecea;
+            color: #b07f78;
+            border: 1px solid #e0a6a6;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .warning-icon {
+            font-size: 1.5rem;
+            margin-right: 8px;
+        }
+
+        .info-title {
+            font-weight: bold;
+            color: var(--muted-pink);
+        }
+
+        .no-annotation {
+            text-align: center;
+            color: var(--muted-pink);
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+
+        .btn-variants {
+            display: block;
+            text-align: center;
+            padding: 12px 24px;
+            background-color: var(--muted-pink);
+            color: var(--beige);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-variants:hover {
+            background-color: var(--dark-olive-green);
+            transform: scale(1.05);
+            color: var(--beige);
+        }
+    </style>
+</head>
+<body>
+    {% extends "base.html" %}
+
+    {% block title %}Protein Annotation{% endblock %}
+
+    {% block content %}
+    <div class="annotation-container">
+        
+        {% if "Parkinson" in protein_info['DiseaseInvolvement'] %}
+            <div class="warning-card">
+                <span class="warning-icon">⚠️</span>
+                This protein is associated with Parkinson's disease.
+            </div>
+        {% endif %}
+
+        {% if protein_info['ID'] or protein_info['Accession'] or protein_info['ProteinName'] or protein_info['Organism'] or protein_info['Function'] %}
+            <div class="annotation-card">
+                <p><span class="info-title">ID:</span> {{ protein_info['ID'] }}</p>
+                <p><span class="info-title">Accession:</span> {{ protein_info['Accession'] }}</p>
+                <p><span class="info-title">Protein Name:</span> {{ protein_info['ProteinName'] }}</p>
+                <p><span class="info-title">Organism:</span> {{ protein_info['Organism'] }}</p>
+                <p><span class="info-title">Function:</span> {{ protein_info['Function'] }}</p>
+            </div>
+
+            <!-- Show the View Variants button only if there is annotation data -->
+            <a href="{{ url_for('variant_viewer', accession=protein_info['Accession']) }}" class="btn-variants">View Variants</a>
+        {% else %}
+            <div class="no-annotation">No annotation available for this protein.</div>
+        {% endif %}
+    </div>
+    {% endblock %}
+</body>
+</html>

@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDPrognosis - README</title>
-</head>
-<body>
+
     <h1>PDPrognosis</h1>
     <img src="./static/PD.jpeg" width="400" alt="PDPrognosis Logo">
 
@@ -76,5 +69,4 @@ flask run
 
     <h2>Contact</h2>
     <p>For inquiries, reach out via email: <a href="mailto:support@pdprognosis.com">support@pdprognosis.com</a></p>
-</body>
-</html>
+

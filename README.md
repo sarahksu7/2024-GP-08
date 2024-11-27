@@ -1,6 +1,6 @@
 # PDPrognosis
 
-<img src="/PD.jpeg" width='400'>
+<img src="./static/PD.jpeg" width='400'>
 <h2>Introduction</h1>
 <p>PDPrognosis is a graduation project that offers a user-friendly platform designed to streamline the management of Parkinson's disease for doctors. It provides time-saving tools and comprehensive insights into patients' protein and peptide profiles, aiding doctors in making informed decisions with ease, and ensures all relevant information is readily accessible for effective patient care.</p>
 <h2>Technology</h1> 

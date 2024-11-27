@@ -6,10 +6,7 @@ import requests
 
 # Path to the SQLite database and model file
 DB_PATH = 'patients_data.db'
-MODEL_PATH = 'multi_output_updrs_model.pkl'
 
-# Load the trained model from the file
-multi_output_model = joblib.load(MODEL_PATH)
 
 # Flask application setup
 app = Flask(__name__)
@@ -76,7 +73,7 @@ def patient_visits(patient_id):
     return render_template('patient_visits.html', patient_id=patient_id, visits=visits_list)
 
 # Route to display proteins for a specific visit and predict UPDRS scores
-@app.route('/patient/<int:patient_id>/visit/<string:visit_id>')
+@app.route('/patient/<int:patient_id>/visit/<string:visit_id>', methods=['GET', 'POST'])
 def visit_proteins(patient_id, visit_id):
     conn = get_db_connection()
     query = """
@@ -95,29 +92,62 @@ def visit_proteins(patient_id, visit_id):
     proteins_data = conn.execute(query, (patient_id, visit_id, patient_id, visit_id, patient_id, visit_id, patient_id, visit_id)).fetchone()
     conn.close()
 
-    if proteins_data:
-        protein_values = proteins_data[10:]
-        protein_columns = proteins_data.keys()[10:]
-        input_data = pd.DataFrame([protein_values], columns=protein_columns)
-        predicted_updrs = multi_output_model.predict(input_data)
+    if not proteins_data:
+        return "No protein data found for this visit", 404
 
-        protein_data = {column: value for column, value in zip(protein_columns, protein_values)}
-        updrs_scores = {
-            'updrs_1': predicted_updrs[0][0],
-            'updrs_2': predicted_updrs[0][1],
-            'updrs_3': predicted_updrs[0][2],
-            'updrs_4': predicted_updrs[0][3]
+    protein_values = proteins_data[10:]
+    protein_columns = proteins_data.keys()[10:]
+    input_data = pd.DataFrame([protein_values], columns=protein_columns)
+
+    if request.method == 'POST':
+        # Parse the selected model from the request
+        data = request.get_json()
+        selected_model = data.get('model')
+
+        # Map models to their file paths
+        model_paths = {
+            'linear': 'linear_regression_model_with_features.pkl',
+            'random_forest': 'random_forest_model_with_features.pkl',
+            'svr': 'svr_model_with_features.pkl'
         }
 
-        return render_template(
-            'proteins.html',
-            patient_id=patient_id,
-            visit_id=visit_id,
-            protein_data=protein_data,
-            updrs_scores=updrs_scores
-        )
+        # Load the selected model and feature names
+        model_path = model_paths.get(selected_model)
+        if not model_path:
+            return jsonify({'error': 'Invalid model selected'}), 400
 
-    return "No protein data found for this visit", 404
+        model, feature_names = joblib.load(model_path)
+
+        # Align input data with the feature names
+        input_data = input_data.reindex(columns=feature_names, fill_value=0)
+
+        # Predict UPDRS scores
+        try:
+            predicted_updrs = model.predict(input_data)
+            scores = {
+                'updrs_1': float(predicted_updrs[0][0]),
+                'updrs_2': float(predicted_updrs[0][1]),
+                'updrs_3': float(predicted_updrs[0][2]),
+                'updrs_4': float(predicted_updrs[0][3])
+            }
+            return jsonify({'scores': scores})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    # Default behavior for GET requests (rendering the page)
+    protein_data = {column: value for column, value in zip(protein_columns, protein_values)}
+
+    # Provide a placeholder for UPDRS scores initially
+    updrs_scores = {'updrs_1': 0, 'updrs_2': 0, 'updrs_3': 0, 'updrs_4': 0}
+
+    return render_template(
+        'proteins.html',
+        patient_id=patient_id,
+        visit_id=visit_id,
+        protein_data=protein_data,
+        updrs_scores=updrs_scores
+    )
+
 
 # Function to fetch and parse protein information
 def protein_information(response_text):
@@ -256,6 +286,12 @@ def get_variants():
         return jsonify({'variant_data': variants, 'amino_acids': amino_acids})
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+    
+@app.route('/home')
+def home():
+    return render_template('home.html')
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

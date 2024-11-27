@@ -164,6 +164,7 @@
                 width: 100%;
             }
         }
+
         /* Link Styling in Table */
         table td a {
             color: var(--link-color);
@@ -181,7 +182,6 @@
 
     <!-- Circle Progress for Each UPDRS Score -->
     <h2>UPDRS Scores</h2>
-
     <div class="flex">
         <section>
             <h3>UPDRS 1</h3>
@@ -201,11 +201,91 @@
         </section>
     </div>
 
-    <h2>Protein Data</h2>
+    <div class="flex" style="flex-direction: column; align-items: center; margin: 20px 0;">
+        <label for="model-select" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; color: var(--beige);">
+            Choose a Model:
+        </label>
+        <select id="model-select" style="
+            font-size: 1.2rem; 
+            padding: 10px 20px; 
+            border: 2px solid var(--dark-olive-green); 
+            border-radius: 10px; 
+            background-color: var(--beige); 
+            color: var(--dark-olive-green); 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+            outline: none; 
+            transition: all 0.3s ease;
+            cursor: pointer;">
+            <option value="linear">Linear Regression</option>
+            <option value="random_forest">Random Forest</option>
+            <option value="svr">Support Vector Regressor</option>
+        </select>
+        <button id="predict-btn" style="
+            margin-top: 20px;
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            background-color: var(--muted-pink);
+            color: var(--beige);
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, transform 0.3s ease;">
+            Predict UPDRS
+        </button>
+    </div>
+<!-- Legend Section for Score Colors -->
+<div class="flex" style="flex-direction: column; align-items: center; margin-top: 30px;">
+    <h2 style="color: var(--beige);">Score Interpretation</h2>
+    <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="
+                width: 20px; 
+                height: 20px; 
+                background-color: green; 
+                border-radius: 50%; 
+                border: 1px solid var(--dark-olive-green);">
+            </div>
+            <span style="color: var(--beige); font-size: 1rem;">0 - 13: Low severity</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="
+                width: 20px; 
+                height: 20px; 
+                background-color: yellow; 
+                border-radius: 50%; 
+                border: 1px solid var(--dark-olive-green);">
+            </div>
+            <span style="color: var(--beige); font-size: 1rem;">14 - 27: Moderate severity</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="
+                width: 20px; 
+                height: 20px; 
+                background-color: orange; 
+                border-radius: 50%; 
+                border: 1px solid var(--dark-olive-green);">
+            </div>
+            <span style="color: var(--beige); font-size: 1rem;">28 - 40: High severity</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="
+                width: 20px; 
+                height: 20px; 
+                background-color: red; 
+                border-radius: 50%; 
+                border: 1px solid var(--dark-olive-green);">
+            </div>
+            <span style="color: var(--beige); font-size: 1rem;">41 - 52: Very high severity</span>
+        </div>
+    </div>
+</div>
+    
 
     <!-- Search Bar for Proteins -->
+    <h2>Protein Data</h2>
     <input type="text" id="protein-search" placeholder="Search for proteins..." onkeyup="searchProteins()">
-
     <div class="table-container">
         <table>
             <thead>
@@ -219,13 +299,11 @@
                     {% if loop.index <= 20 %}
                         <tr>
                             <td><a href="{{ url_for('protein_annotation', proteinId=protein) }}">{{ protein }}</a></td>
-
                             <td>{{ value }}</td>
                         </tr>
                     {% else %}
                         <tr class="hidden additional-proteins">
                             <td><a href="{{ url_for('protein_annotation', proteinId=protein) }}">{{ protein }}</a></td>
-
                             <td>{{ value }}</td>
                         </tr>
                     {% endif %}
@@ -234,7 +312,6 @@
         </table>
     </div>
 
-    <!-- Show More Button -->
     <div class="flex">
         <button id="show-more-btn" class="btn-show-more">Show More</button>
     </div>
@@ -242,42 +319,64 @@
     <a href="/doctor-patients" class="btn-back">Back to Patients List</a>
 
     <script>
-        // Display UPDRS scores in circular progress elements
-        const updrsScores = {
-            updrs1: Math.floor(Math.abs(parseFloat("{{ updrs_scores.updrs_1 | default(0) }}"))),
-            updrs2: Math.floor(Math.abs(parseFloat("{{ updrs_scores.updrs_2 | default(0) }}"))),
-            updrs3: Math.floor(Math.abs(parseFloat("{{ updrs_scores.updrs_3 | default(0) }}"))),
-            updrs4: Math.floor(Math.abs(parseFloat("{{ updrs_scores.updrs_4 | default(0) }}")))
-        };
-
-        function updateCircle(circleId, value) {
-            const circle = document.getElementById(circleId);
-            const progressValue = (value / 54) * 100;
-            let color = value <= 13 ? 'green' : value <= 27 ? 'yellow' : value <= 40 ? 'orange' : 'red';
-
-            circle.style.backgroundImage = `conic-gradient(${color} ${progressValue}%, #f1f1f1 ${progressValue}%)`;
-            circle.querySelector('span').textContent = `${value}`;
+        // Helper function to trim and return absolute values of scores
+        function trimAndAbsolute(value) {
+            return Math.abs(Math.trunc(value)); // Use Math.abs and Math.trunc to handle absolute integer values
         }
-
-        updateCircle('updrs-1-circle', updrsScores.updrs1);
-        updateCircle('updrs-2-circle', updrsScores.updrs2);
-        updateCircle('updrs-3-circle', updrsScores.updrs3);
-        updateCircle('updrs-4-circle', updrsScores.updrs4);
-
+    
+        // Update circle progress with trimmed and absolute value
+        function updateCircle(circleId, value) {
+            const trimmedValue = trimAndAbsolute(value);
+            const circle = document.getElementById(circleId);
+            const progressValue = (trimmedValue / 54) * 100;
+            const color = trimmedValue <= 13 ? 'green' : trimmedValue <= 27 ? 'yellow' : trimmedValue <= 40 ? 'orange' : 'red';
+            circle.style.backgroundImage = `conic-gradient(${color} ${progressValue}%, #f1f1f1 ${progressValue}%)`;
+            circle.querySelector('span').textContent = `${trimmedValue}`;
+        }
+    
+        // Event listener for the Predict button
+        document.getElementById('predict-btn').addEventListener('click', async () => {
+            const model = document.getElementById('model-select').value;
+    
+            try {
+                const response = await fetch(`/patient/{{ patient_id }}/visit/{{ visit_id }}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model })
+                });
+    
+                if (response.ok) {
+                    const data = await response.json();
+                    updateCircle('updrs-1-circle', data.scores.updrs_1);
+                    updateCircle('updrs-2-circle', data.scores.updrs_2);
+                    updateCircle('updrs-3-circle', data.scores.updrs_3);
+                    updateCircle('updrs-4-circle', data.scores.updrs_4);
+                } else {
+                    alert('Prediction failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+    
         const showMoreBtn = document.getElementById('show-more-btn');
         const additionalProteins = document.querySelectorAll('.additional-proteins');
-
+    
         showMoreBtn.addEventListener('click', () => {
             additionalProteins.forEach(row => row.classList.remove('hidden'));
             showMoreBtn.style.display = 'none';
         });
-
+    
         function searchProteins() {
             const searchInput = document.getElementById('protein-search').value.toLowerCase();
             const rows = document.querySelectorAll('#protein-table-body tr');
-            rows.forEach(row => row.style.display = row.cells[0].textContent.toLowerCase().includes(searchInput) ? '' : 'none');
+            rows.forEach(row => {
+                row.style.display = row.cells[0].textContent.toLowerCase().includes(searchInput) ? '' : 'none';
+            });
         }
     </script>
+    
 {% endblock %}
 </body>
 </html>

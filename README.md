@@ -24,6 +24,3 @@ Start by cloning this repository to your local machine:
 ```bash
 git clone https://github.com/your-username/your-repo-name.git
 cd your-repo-name
-
-2️⃣ Install Dependencies
-Make sure you have Python (or any required environment) installed. Then, install the necessary dependencies:

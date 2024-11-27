@@ -21,5 +21,3 @@ env/
 # Ignore log files
 *.log
 
-# Ignore static image or media files
-static/PD.jpeg

@@ -1,72 +1,50 @@
+# PDPrognosis
 
-    <h1>PDPrognosis</h1>
-    <img src="./static/PD.jpeg" width="400" alt="PDPrognosis Logo">
+<img src="./static/PD.jpeg" width="400" alt="PDPrognosis Logo">
 
-    <h2>Introduction</h2>
-    <p>
-        PDPrognosis is a graduation project that offers a user-friendly platform designed to streamline 
-        the management of Parkinson's disease for doctors. It provides time-saving tools and 
-        comprehensive insights into patients' protein and peptide profiles, aiding doctors in making 
-        informed decisions with ease and ensuring all relevant information is readily accessible for 
-        effective patient care.
-    </p>
+## Introduction
+PDPrognosis is a graduation project that offers a user-friendly platform designed to streamline the management of Parkinson's disease for doctors. It provides time-saving tools and comprehensive insights into patients' protein and peptide profiles, aiding doctors in making informed decisions with ease and ensuring all relevant information is readily accessible for effective patient care.
 
-    <hr>
+---
 
-    <h2>Technology</h2>
-    <ul>
-        <li>Digital Ocean hosting services</li>
-        <li>Visual Studio Code</li>
-        <li>Python</li>
-        <li>HTML</li>
-        <li>CSS</li>
-        <li>JavaScript</li>
-    </ul>
+## Technology
+- Digital Ocean hosting services
+- Visual Studio Code
+- Python
+- HTML
+- CSS
+- JavaScript
 
-    <hr>
+---
 
-    <h2>🚀 Launching Instructions</h2>
-    <p>Follow these simple steps to launch and experience the project:</p>
+## 🚀 Launching Instructions
 
-    <h3>1️⃣ Clone the Repository</h3>
-    <pre>
-        <code>
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
-        </code>
-    </pre>
+Follow these simple steps to launch and experience the project:
 
-    <h3>2️⃣ Set Up the Database</h3>
-    <p>Initialize the database for the project (if applicable):</p>
-    <pre>
-        <code>
-flask db init
-flask db migrate
-flask db upgrade
-        </code>
-    </pre>
+### 1️⃣ Clone the Repository
+git clone https://github.com/your-username/your-repo-name.git cd your-repo-name
 
-    <h3>3️⃣ Start the Application</h3>
-    <p>Launch the application with:</p>
-    <pre>
-        <code>
+
+### 2️⃣ Set Up the Database
+Initialize the database for the project (if applicable):
+flask db init flask db migrate flask db upgrade
+
+
+### 3️⃣ Start the Application
+Launch the application with:
 flask run
-        </code>
-    </pre>
-    <p>The application will now be available at: <a href="http://127.0.0.1:5000" target="_blank">http://127.0.0.1:5000</a></p>
 
-    <hr>
 
-    <h2>Features Overview</h2>
-    <ul>
-        <li><strong>Patient Dashboard:</strong> Centralized dashboard for patient management</li>
-        <li><strong>UPDRS Prediction:</strong> Predict UPDRS scores using advanced machine learning models</li>
-        <li><strong>Protein Analysis:</strong> Visualize protein and peptide profiles</li>
-        <li><strong>Secure Access:</strong> Role-based authentication for data security</li>
-    </ul>
+The application will now be available at: [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
-    <hr>
+---
 
-    <h2>Contact</h2>
-    <p>For inquiries, reach out via email: <a href="mailto:support@pdprognosis.com">support@pdprognosis.com</a></p>
+## Features Overview
+- **Patient Dashboard:** Centralized dashboard for patient management
+- **UPDRS Prediction:** Predict UPDRS scores using advanced machine learning models
+- **Protein Analysis:** Visualize protein and peptide profiles
 
+---
+
+## Contact
+For inquiries, reach out via email: [442201747@student.ksu.edu.sa](mailto:442201747@student.ksu.edu.sa)

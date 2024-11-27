@@ -6,8 +6,6 @@
 <h2>Technology</h1> 
 <ul>
 <li>Digital Ocean hosting services.</li>
-<li>TensorFlow and GPflow are tools for machine learning. </li>
-<li>Anaconda as a tool for managing Python environments.</li>
 <li>Visual Studio Code</li>
 <li>Python</li>
 <li>Html</li>

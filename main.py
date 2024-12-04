@@ -106,9 +106,9 @@ def visit_proteins(patient_id, visit_id):
 
         # Map models to their file paths
         model_paths = {
-            'linear': 'linear_regression_model_with_features.pkl',
-            'random_forest': 'random_forest_model_with_features.pkl',
-            'svr': 'svr_model_with_features.pkl'
+            'linear': 'best_linear_regression_model.pkl',
+            'random_forest': 'best_random_forest_model.pkl',
+            'svr': 'best_svr_model.pkl'
         }
 
         # Load the selected model and feature names
@@ -291,7 +291,60 @@ def get_variants():
 def home():
     return render_template('home.html')
 
+from werkzeug.utils import secure_filename
+import os
 
+# Define the upload folder
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Ensure the folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+@app.route('/add-visit/<int:patient_id>', methods=['POST'])
+def add_visit(patient_id):
+    try:
+        # Retrieve form data
+        visit_month = request.form['visit_month']
+        proteins_file = request.files['proteins_file']
+        peptides_file = request.files['peptides_file']
+
+        # Save files securely
+        proteins_filename = secure_filename(proteins_file.filename)
+        peptides_filename = secure_filename(peptides_file.filename)
+        proteins_file_path = os.path.join(app.config['UPLOAD_FOLDER'], proteins_filename)
+        peptides_file_path = os.path.join(app.config['UPLOAD_FOLDER'], peptides_filename)
+        proteins_file.save(proteins_file_path)
+        peptides_file.save(peptides_file_path)
+
+        # Generate a unique visit ID
+        visit_id = f"{patient_id}_{visit_month}"
+
+        # Insert visit data into the t_plus_0 table (if necessary)
+        conn = get_db_connection()
+        conn.execute(
+            """
+            INSERT INTO t_plus_0 (visit_id, patient_id, visit_month)
+            VALUES (?, ?, ?)
+            """,
+            (visit_id, patient_id, visit_month),
+        )
+
+        # Insert file data into the visit_files table
+        conn.execute(
+            """
+            INSERT INTO visit_files (visit_id, proteins_file, peptides_file)
+            VALUES (?, ?, ?)
+            """,
+            (visit_id, proteins_filename, peptides_filename),
+        )
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({'message': 'Visit added successfully!'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

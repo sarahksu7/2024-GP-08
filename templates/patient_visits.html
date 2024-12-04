@@ -103,15 +103,62 @@
             background-color: var(--muted-pink);
             color: var(--beige);
         }
+
+        /* Add Visit Form */
+        .add-visit-form {
+            display: none; /* Initially hidden */
+            margin-top: 30px;
+            padding: 20px;
+            background-color: var(--beige);
+            border-radius: 10px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .toggle-button {
+            background-color: var(--muted-pink);
+            color: var(--beige);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            display: block;
+            text-align: center;
+        }
+
+        .toggle-button:hover {
+            background-color: var(--dark-olive-green);
+            color: var(--beige);
+        }
+
+        button {
+            background-color: var(--muted-pink);
+            color: var(--beige);
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: var(--dark-olive-green);
+        }
     </style>
+    <script>
+        function toggleForm() {
+            const form = document.getElementById('add-visit-form');
+            form.style.display = form.style.display === 'block' ? 'none' : 'block';
+        }
+    </script>
 </head>
 <body>
 
     {% extends "base.html" %}
 
-{% block title %}Patient Visits{% endblock %}
+    {% block title %}Patient Visits{% endblock %}
 
-{% block content %}
+    {% block content %}
     <h1 style="color: var(--beige);">Visits for Patient {{ patient_id }}</h1>
 
     <div class="card-container">
@@ -128,7 +175,27 @@
         {% endif %}
     </div>
 
+    <!-- Toggle Button to Show/Hide Form -->
+    <button class="toggle-button" onclick="toggleForm()">Add Visit</button>
+
+    <!-- Add Visit Form -->
+    <div id="add-visit-form" class="add-visit-form">
+        <h2 style="color: var(--muted-pink);">Add a New Visit</h2>
+        <form method="POST" action="/add-visit/{{ patient_id }}" enctype="multipart/form-data">
+            <label for="visit-month" style="color: var(--dark-olive-green);">Visit Month:</label>
+            <input type="text" id="visit-month" name="visit_month" required><br><br>
+
+            <label for="proteins-file" style="color: var(--dark-olive-green);">Proteins File:</label>
+            <input type="file" id="proteins-file" name="proteins_file" accept=".csv" required><br><br>
+
+            <label for="peptides-file" style="color: var(--dark-olive-green);">Peptides File:</label>
+            <input type="file" id="peptides-file" name="peptides_file" accept=".csv" required><br><br>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
     <a href="/" class="back-btn">Back to Doctor's Profile</a>
-{% endblock %}
+    {% endblock %}
 </body>
 </html>

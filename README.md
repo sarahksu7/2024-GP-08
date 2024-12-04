@@ -22,7 +22,7 @@ PDPrognosis is a graduation project that offers a user-friendly platform designe
 Follow these simple steps to launch and experience the project:
 
 ### 1️⃣ Clone the Repository
-git clone [https://github.com/your-username/your-repo-name.gi](https://github.com/sarahksu7/2024-GP-08.git) cd 2024-GP-08
+git clone https://github.com/sarahksu7/2024-GP-08.git cd 2024-GP-08
 
 
 ### 2️⃣ Set Up the Database

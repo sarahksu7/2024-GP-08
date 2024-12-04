@@ -26,7 +26,7 @@ git clone [https://github.com/your-username/your-repo-name.gi](https://github.co
 
 
 ### 2️⃣ Set Up the Database
-Initialize the database for the project (if applicable):
+Initialize the database for the project :
 flask db init flask db migrate flask db upgrade
 
 
